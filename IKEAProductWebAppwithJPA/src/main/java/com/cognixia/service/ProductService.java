@@ -2,9 +2,9 @@ package com.cognixia.service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +14,9 @@ import com.cognixia.model.Product;
 import com.cognixia.repository.ProductRepository;
 
 @Service
+@Transactional
 public class ProductService {
 
-	//private static List<Product> productList = new ArrayList<Product>();
-	//private static int productCount = 1006;
 	private static final int TAX = 13;
 	private static final int DISCOUNT = 10;
 	private static final String OUT_OF_STOCK = "The product is out of stock";
@@ -82,18 +81,30 @@ public class ProductService {
 	}
 
 	//Task 6. Product Discount: Using a template, print a user friendly message for a 10% discount on the most popular product
-	public List<String> displayDiscount() {
+	// OLDER VERSION
+//	public List<String> displayDiscount() {
+//		List<String> rated = new ArrayList<String>();
+//		Integer[] arr = new Integer[pr.findAll().size()];
+//		for (int i = 0; i<pr.findAll().size(); i++) {
+//			arr[i] = pr.findAll().get(i).getRating();		
+//		}
+//		int max = Collections.max(Arrays.asList(arr));
+//		for (Product p : pr.findAll()) {
+//			if(p.getRating()==max) {
+//				double cost = p.getPrice()-p.getPrice()*DISCOUNT/100;
+//				rated.add(String.format(DISCOUNT_TEMPLATE, p.getName(), p.getRating(), DISCOUNT, p.getName(), fr.format(cost)));
+//			}
+//		}
+//		return rated;
+//	}
+	
+	//Task 6. Product Discount: Using a template, print a user friendly message for a 10% discount on the most popular product
+	public List<String> displayDiscounted(){
 		List<String> rated = new ArrayList<String>();
-		Integer[] arr = new Integer[pr.findAll().size()];
-		for (int i = 0; i<pr.findAll().size(); i++) {
-			arr[i] = pr.findAll().get(i).getRating();		
-		}
-		int max = Collections.max(Arrays.asList(arr));
-		for (Product p : pr.findAll()) {
-			if(p.getRating()==max) {
-				double cost = p.getPrice()-p.getPrice()*DISCOUNT/100;
-				rated.add(String.format(DISCOUNT_TEMPLATE, p.getName(), p.getRating(), DISCOUNT, p.getName(), fr.format(cost)));
-			}
+		List<Product> findRated = pr.findByMaxRating();
+		for (int i=0; i<findRated.size(); i++) {
+			double cost = findRated.get(i).getPrice()-findRated.get(i).getPrice()*DISCOUNT/100;
+			rated.add(String.format(DISCOUNT_TEMPLATE, findRated.get(i).getName(), findRated.get(i).getRating(), DISCOUNT, findRated.get(i).getName(), fr.format(cost)));
 		}
 		return rated;
 	}
@@ -101,18 +112,8 @@ public class ProductService {
 	//Task 7. Product Update: Modify the Price of products for a product Id using request parameters.
 	//ps.addProduct() method
 
-	//Task 8. Product Purge: Delete products that have lowest rating.
-	public void deleteLowRated() {
-		Integer[] arr = new Integer[pr.findAll().size()];
-		for (int i = 0; i<pr.findAll().size(); i++) {
-			arr[i] = pr.findAll().get(i).getRating();		
-		}
-		int min = Collections.min(Arrays.asList(arr));
-		for (Product p : pr.findAll()) {
-			if(p.getRating()==min) {
-				pr.delete(p);
-			}
-		}
+	//Task 8. Product Purge: Delete products that have lowest rating.	
+	public void deleteByRating() {
+		pr.deleteByMinRating();
 	}
-
 }

@@ -80,7 +80,7 @@ public class ProductController {
 	//Task 6. Product Discount: Using a template, print a user friendly message for a 10% discount on the most popular product
 	@GetMapping("/discount")
 	public List<String> displayDiscount() {
-		return ps.displayDiscount();
+		return ps.displayDiscounted();
 	}
 
 	//Task 7. Product Update: Modify the Price of products for a product Id using request parameters.
@@ -101,14 +101,7 @@ public class ProductController {
 
 	//Task 8. Product Purge: Delete products that have lowest rating.
 	@DeleteMapping("/")
-	public ResponseEntity<Product> delete() {
-		try {
-			ps.deleteLowRated();
-			return ResponseEntity.ok().build();
-		}
-		catch(NoSuchElementException e) {
-			return ResponseEntity.notFound().header(ERROR, PRODUCT_NOT_FOUND).build();
-		}
+	public void delete() {
+		ps.deleteByRating();
 	}
-
 }
